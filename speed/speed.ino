@@ -3,7 +3,6 @@
 #include <LiquidCrystal_I2C.h>
 
 const int ldrPin = A0;
-const int red_above_this = 35;
 const int segments_per_revolution = 8;
 int lastValue = 0;
 unsigned long changes = 0;
@@ -12,8 +11,6 @@ int ldrValue = 0;
 unsigned long lastCheckTime = 0;
 float rps = 0.0;
 
-const float diameter_m = 0.67;
-const float wheel_circumference = 3.1416 * diameter_m; // meters
 
 const int output_tick_size=500;
 unsigned long startTime = 0;
@@ -21,13 +18,6 @@ unsigned long startTime = 0;
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
 
 
-//For the history of colors 
-
-int histogram[10] = {0};
-
-long total = 0;
-int count = 0;
-//End history of colors
 
 void setup() {
   Serial.begin(9600);
@@ -39,24 +29,6 @@ void setup() {
   lcd.print("Hello");
 }
 
-int detectColor(int value) {
-  // Update average
-  total += value;
-  count++;
-
-  // Update histogram (bins: 0–9, 10–19, ..., 90–100)
-  int bin = value / 10;
-  if (bin >= 10) bin = 10 - 1;
-  histogram[bin]++;
-
-  // Classify value
-  return (value > red_above_this) ? 0 : 1;
-}
-
-float calculateKPH(float rpm) {
-  float meters_per_minute = rpm * wheel_circumference;
-  return (meters_per_minute * 60) / 1000;
-}
 
 void loop() {
   ldrValue = analogRead(ldrPin);

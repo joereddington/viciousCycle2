@@ -1,5 +1,10 @@
 #include "bike_logic.h"
 
+int histogram[10] = {0};
+long total = 0;
+int count = 0;
+
+
 void printColorStats(const int histogram[], long total, int count) {
   float average = count > 0 ? (float)total / count : 0.0;
 
@@ -31,4 +36,22 @@ void printColorStats(const int histogram[], long total, int count) {
   }
 }
 
+int detectColor(int value) {
+  // Update average
+  total += value;
+  count++;
+
+  // Update histogram (bins: 0–9, 10–19, ..., 90–100)
+  int bin = value / 10;
+  if (bin >= 10) bin = 10 - 1;
+  histogram[bin]++;
+
+  // Classify value
+  return (value > red_above_this) ? 0 : 1;
+}
+
+float calculateKPH(float rpm) {
+  float meters_per_minute = rpm * wheel_circumference;
+  return (meters_per_minute * 60) / 1000;
+}
 
