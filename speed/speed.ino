@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "bike_logic.h"
 #include <LiquidCrystal_I2C.h>
 
 const int ldrPin = A0;
@@ -22,8 +23,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
 
 //For the history of colors 
 
-const int HISTOGRAM_BINS = 10;
-int histogram[HISTOGRAM_BINS] = {0};
+int histogram[10] = {0};
 
 long total = 0;
 int count = 0;
@@ -46,44 +46,12 @@ int detectColor(int value) {
 
   // Update histogram (bins: 0–9, 10–19, ..., 90–100)
   int bin = value / 10;
-  if (bin >= HISTOGRAM_BINS) bin = HISTOGRAM_BINS - 1;
+  if (bin >= 10) bin = 10 - 1;
   histogram[bin]++;
 
   // Classify value
   return (value > red_above_this) ? 0 : 1;
 }
-
-void printColorStats() {
-  float average = count > 0 ? (float)total / count : 0.0;
-
-  Serial.print("Average value: ");
-  Serial.println(average, 2);
-
-  Serial.println();
-  Serial.println("| Range     | Count |");
-  Serial.println("|-----------|-------|");
-
-  for (int i = 0; i < HISTOGRAM_BINS; i++) {
-    int rangeStart = i * 10;
-    int rangeEnd = (i == 9) ? 100 : (rangeStart + 9);
-
-    // Format each row
-    Serial.print("| ");
-    if (rangeEnd < 100) Serial.print(" ");
-    Serial.print(rangeStart);
-    Serial.print("-");
-    Serial.print(rangeEnd);
-    Serial.print(" |   ");
-    
-    // Pad count to 3 digits
-    if (histogram[i] < 10) Serial.print(" ");
-    if (histogram[i] < 100) Serial.print(" ");
-    Serial.print(histogram[i]);
-    Serial.println(" |");
-  }
-}
-
-
 
 float calculateKPH(float rpm) {
   float meters_per_minute = rpm * wheel_circumference;
