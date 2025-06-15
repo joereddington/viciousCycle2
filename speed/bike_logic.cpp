@@ -54,8 +54,21 @@ int detectColor(int value) {
   return (value > red_above_this) ? 0 : 1;
 }
 
-float calculateKPH(float rpm) {
-  float meters_per_minute = rpm * wheel_circumference;
+float calculateKPH(float cadence) {
+  float ratio=2.6; //todo make this a global
+  float meters_per_minute = cadence * ratio * wheel_circumference;
   return (meters_per_minute * 60) / 1000;
 }
+
+float get_distance(int changes){
+  if(changes<0){
+    return 0;
+  }
+  float ratio=2.6; //todo make this a global
+  float total_revolutions=changes/8 ;
+  float crank_revolutions=total_revolutions/4.6;
+  float km_traveled=(crank_revolutions*ratio)/1000;
+  return km_traveled;
+}
+
 

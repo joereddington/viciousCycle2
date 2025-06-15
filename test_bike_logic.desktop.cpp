@@ -48,13 +48,23 @@ void test_detectColor() {
 }
 
 void test_calculateKPH() {
-  float rpm = 60.0;
-  float expected_kph = ((rpm * wheel_circumference) * 60.0f) / 1000.0f;
+  float cadence = 60.0;
+  float expected_kph = ((cadence * wheel_circumference*2.6) * 60.0f) / 1000.0f;
 
-  float kph = calculateKPH(rpm);
+  float kph = calculateKPH(cadence);
   assert(std::abs(kph - expected_kph) < 0.01);
 
   std::cout << "[PASS] test_calculateKPH()\n";
+}
+
+void test_get_distance() {
+  float km=get_distance(10000);
+  assert(std::abs(km - 0.71) < 0.01);
+  km=get_distance(0);
+  assert(std::abs(km - 0) < 0.01);
+  km=get_distance(-10000000);
+  assert(std::abs(km - 0) < 0.01);
+  std::cout << "[PASS] test_get_distance()\n";
 }
 
 // --------- Main test ----------
@@ -67,6 +77,7 @@ int main() {
   printColorStats(testHistogram, testTotal, testCount);
   test_detectColor();
   test_calculateKPH();
+  test_get_distance();
   return 0;
 }
 
