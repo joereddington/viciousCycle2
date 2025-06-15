@@ -4,6 +4,10 @@ int histogram[10] = {0};
 long total = 0;
 int count = 0;
 
+void pcs(){
+printColorStats(histogram,total,count);
+
+}
 
 void printColorStats(const int histogram[], long total, int count) {
   float average = count > 0 ? (float)total / count : 0.0;

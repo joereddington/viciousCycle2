@@ -23,6 +23,7 @@ extern int count;
 void printColorStats(const int histogram[], long total, int count);
 int detectColor(int value);
 float calculateKPH(float rpm);
+void pcs();
 
 
 #endif
