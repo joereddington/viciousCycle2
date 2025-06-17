@@ -23,6 +23,7 @@ void updateLCD(float cadence, float kph, float distance_km) {
   lcd.print("km");
 }
 
+
 void updateSerial(unsigned long changes,
                   float readings_per_change,
                   float rps,
@@ -31,23 +32,18 @@ void updateSerial(unsigned long changes,
                   float kph,
                   float distance_km,
                   float averageKPH) {
-  Serial.print("| Changes: ");
-  Serial.print(changes);
-  Serial.print("| Readings Per Change: ");
-  Serial.print(readings_per_change);
-  Serial.print("| RPS: ");
-  Serial.print(rps, 1);
-  Serial.print(" | RPM: ");
-  Serial.print(rpm, 1);
-  Serial.print(" | Cadence: ");
-  Serial.print(cadence, 1);
-  Serial.print(" | KPH: ");
-  Serial.print(kph, 2);
-  Serial.print(" | Distance: ");
-  Serial.print(distance_km, 3);
-  Serial.print(" km | Avg KPH: ");
-  Serial.println(averageKPH, 2);
+  Serial.print("{");
+  Serial.print("\"changes\":"); Serial.print(changes); Serial.print(",");
+  Serial.print("\"readings_per_change\":"); Serial.print(readings_per_change); Serial.print(",");
+  Serial.print("\"rps\":"); Serial.print(rps, 1); Serial.print(",");
+  Serial.print("\"rpm\":"); Serial.print(rpm, 1); Serial.print(",");
+  Serial.print("\"cadence\":"); Serial.print(cadence, 1); Serial.print(",");
+  Serial.print("\"kph\":"); Serial.print(kph, 2); Serial.print(",");
+  Serial.print("\"distance_km\":"); Serial.print(distance_km, 3); Serial.print(",");
+  Serial.print("\"averageKPH\":"); Serial.print(averageKPH, 2);
+  Serial.println("}");
 }
+
 
 void setup() {
   Serial.begin(9600);
@@ -95,7 +91,7 @@ void loop() {
     changesSinceLastTick = 0;
 
     updateSerial(changes, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
-    pcs();
+    //pcs();
     updateLCD(cadence, kph, distance_km);
   }
 
