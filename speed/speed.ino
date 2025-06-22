@@ -1,13 +1,13 @@
 #include <Wire.h>
 #include "bike_logic.h"
 #include <LiquidCrystal_I2C.h>
-
+#include <Keyboard.h>
 const int ldrPin = A0;//The IR sensor is connected here. 
 const int segments_per_revolution = 8;
 int lastValue = 0;
 const float gear_ratio=4.3;
 
-const int output_tick_size = 500;
+const int output_tick_size = 300;
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
 
 void updateLCD(float cadence, float kph, float distance_km) {
@@ -44,6 +44,26 @@ void updateSerial(unsigned long changes,
   Serial.println("}");
 }
 
+void road_rash(int cadence){
+if (cadence > 65){ //then acellerate 
+      Keyboard.press('s');  
+      Serial.print("gas");
+      
+             // Hold it for 50 milliseconds
+    } else{
+      Serial.print("stopping gas");
+      Keyboard.release('s');
+    }
+if (cadence < 20){
+      Keyboard.press('a');  
+             // Hold it for 50 milliseconds
+      Serial.print("break");
+    } else{
+      Keyboard.release('a');
+      Serial.print("releasing break");
+    }    
+
+}
 
 void setup() {
   Serial.begin(9600);
@@ -86,6 +106,8 @@ void loop() {
     float averageKPH = (totalTimeHours > 0) ? distance_km / totalTimeHours : 0;
 
     float readings_per_change = (changes > 0) ? (float)total_readings / changes : 0;
+    road_rash(cadence);
+
 
     lastCheckTime = currentTime;
     changesSinceLastTick = 0;
