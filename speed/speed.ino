@@ -5,7 +5,7 @@
 const int ldrPin = A0;//The IR sensor is connected here. 
 const int segments_per_revolution = 8;
 int lastValue = 0;
-const float gear_ratio=4.3;
+const float gear_ratio=3.34;//I worked this out by doing 100 crank revolutions and checking the number of main revolutions recorded
 
 const int output_tick_size = 300;
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
@@ -19,7 +19,7 @@ void updateLCD(float cadence, float kph, float distance_km) {
   lcd.print(kph, 1);
   lcd.setCursor(0, 1);
   lcd.print("Dist:");
-  lcd.print(distance_km, 2);
+  lcd.print(distance_km, 3);
   lcd.print("km");
 }
 
@@ -46,21 +46,29 @@ void updateSerial(unsigned long changes,
 
 void road_rash(int cadence){
 if (cadence > 65){ //then acellerate 
-      Keyboard.press('s');  
-      Serial.print("gas");
+      static unsigned long lastPress = 0;
+      Keyboard.press('s');
+      Serial.print("gas+ ");
+      if (cadence > 65 && millis() - lastPress > 2000) {
+          Keyboard.release('s');
+          delay(50);  // tap duration
+          Keyboard.press('s');
+          lastPress = millis();
+      
+      }
       
              // Hold it for 50 milliseconds
     } else{
-      Serial.print("stopping gas");
+      Serial.print("gas-");
       Keyboard.release('s');
     }
 if (cadence < 20){
       Keyboard.press('a');  
              // Hold it for 50 milliseconds
-      Serial.print("break");
+      Serial.print("break+");
     } else{
       Keyboard.release('a');
-      Serial.print("releasing break");
+      Serial.print("break-");
     }    
 
 }
