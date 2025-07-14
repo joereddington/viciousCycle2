@@ -60,13 +60,15 @@ float calculateKPH(float cadence) {
   return (meters_per_minute * 60) / 1000;
 }
 
-float get_distance(int changes){
+float get_distance(long changes){
   if(changes<0){
+    Serial.print("changes:"); Serial.print(changes);
+    Serial.println("RETURNING BECAUSE CHANGES IS LESS THAN ZERO");
     return 0;
   }
   float ratio=2.6; //todo make this a global
-  float total_revolutions=changes/8 ;
-  float crank_revolutions=total_revolutions/3.34;//todo why is this not using the main constant
+  float total_revolutions = (float)changes / segments_per_revolution;
+  float crank_revolutions= (float) total_revolutions/3.34;//todo why is this not using the main constant
   float km_traveled=(crank_revolutions*ratio)/1000*wheel_circumference;
   Serial.print("changes:"); Serial.print(changes);
   Serial.print("total revolutions:"); Serial.print(total_revolutions);

@@ -12,7 +12,7 @@ typedef unsigned char byte;
 const float diameter_m = 0.67;
 const float wheel_circumference = 3.1416 * diameter_m; // meters
 const int red_above_this = 35;
-
+const int segments_per_revolution = 60;
 
 extern int histogram[10];
 extern long total;
@@ -24,7 +24,7 @@ void printColorStats(const int histogram[], long total, int count);
 int detectColor(int value);
 float calculateKPH(float rpm);
 void pcs();
-float get_distance(int changes); 
+float get_distance(long changes); 
 
 
 #endif

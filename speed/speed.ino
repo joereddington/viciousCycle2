@@ -3,15 +3,14 @@
 #include <LiquidCrystal_I2C.h>
 #include <Keyboard.h>
 const int ldrPin = A0;//The IR sensor is connected here. 
-const int segments_per_revolution = 8;
 int lastValue = 0;
 const float gear_ratio=3.34;//I worked this out by doing 100 crank revolutions and checking the number of main revolutions recorded
 
-const int output_tick_size = 300;
+const int output_tick_size = 200;//changing this causes strange probelms 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
 
 void updateLCD(float cadence, float kph, float distance_km) {
-  lcd.clear();
+  //lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("CAD:");
   lcd.print(cadence, 0);
@@ -51,20 +50,17 @@ if (cadence > 65){ //then acellerate
       Serial.print("gas+ ");
       if (cadence > 65 && millis() - lastPress > 2000) {
           Keyboard.release('s');
-          delay(50);  // tap duration
+          //delay(50);  // tap duration
           Keyboard.press('s');
           lastPress = millis();
       
       }
-      
-             // Hold it for 50 milliseconds
     } else{
       Serial.print("gas-");
       Keyboard.release('s');
     }
 if (cadence < 20){
       Keyboard.press('a');  
-             // Hold it for 50 milliseconds
       Serial.print("break+");
     } else{
       Keyboard.release('a');
@@ -85,8 +81,8 @@ void setup() {
 void loop() {
   //todo - lots of these shouldn't be static 
   static unsigned long startTime = millis();
-  static unsigned int changes = 0;
-  static unsigned int total_readings = 0;
+  static unsigned long changes = 0;
+  static unsigned long total_readings = 0;
   static unsigned int changesSinceLastTick = 0;
   static unsigned long lastCheckTime = 0;
   static float rps = 0.0;
