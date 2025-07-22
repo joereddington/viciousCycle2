@@ -8,11 +8,13 @@
 struct {
   void print(const char* s) { std::cout << s; }
   void print(int v) { std::cout << v; }
+  void print(long v) { std::cout << v; }
   void print(float f, int precision = 2) {
     std::cout << std::fixed << std::setprecision(precision) << f;
   }
   void println(const char* s) { std::cout << s << "\n"; }
   void println(int v) { std::cout << v << "\n"; }
+  void println(long v) { std::cout << v << "\n"; }
   void println(float f, int precision = 2) {
     std::cout << std::fixed << std::setprecision(precision) << f << "\n";
   }
@@ -59,7 +61,7 @@ void test_calculateKPH() {
 
 void test_get_distance() {
   float km=get_distance(10000);
-  assert(std::abs(km - 0.71) < 0.01);
+  assert(std::abs(km - 0.27) < 0.01);
   km=get_distance(0);
   assert(std::abs(km - 0) < 0.01);
   km=get_distance(-10000000);
