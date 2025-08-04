@@ -43,6 +43,21 @@ void updateSerial(unsigned long changes,
   Serial.println("}");
 }
 
+unsigned long lastAlarmTime = 0;  // Track when last alarm played
+
+void playAlarmSound(int pin) {
+  tone(pin, 1000, 250);  // Play a single 250 ms tone at 1kHz
+  lastAlarmTime = millis();  // Record the time the tone was played
+}
+
+void uncharted(int cadence) {
+  unsigned long currentTime = millis();
+  
+  if (cadence < 60 && (currentTime - lastAlarmTime >= 1000)) {
+    playAlarmSound(8);  // Only plays if 1 second has passed since last tone
+  }
+}
+
 void road_rash(int cadence){
 if (cadence > 65){ //then acellerate 
       static unsigned long lastPress = 0;
@@ -69,6 +84,14 @@ if (cadence < 20){
 
 }
 
+// Friendly startup sound
+void playHelloSound(int pin) {
+  tone(pin, 2000, 150);  // first beep
+  delay(200);
+  tone(pin, 2400, 150);  // second, higher beep
+  delay(200);
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(ldrPin, INPUT);
@@ -76,6 +99,7 @@ void setup() {
   lcd.backlight();
   lcd.setCursor(0, 0);
   lcd.print("Hello");
+  playHelloSound(8);
 }
 
 void loop() {
@@ -110,7 +134,7 @@ void loop() {
     float averageKPH = (totalTimeHours > 0) ? distance_km / totalTimeHours : 0;
 
     float readings_per_change = (changes > 0) ? (float)total_readings / changes : 0;
-    road_rash(cadence);
+    uncharted(cadence);
 
 
     lastCheckTime = currentTime;
