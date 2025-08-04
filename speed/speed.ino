@@ -4,26 +4,33 @@
 #include <Keyboard.h>
 const int ldrPin = A0;//The IR sensor is connected here. 
 int lastValue = 0;
-const float gear_ratio=3.34;//I worked this out by doing 100 crank revolutions and checking the number of main revolutions recorded
 
-const int output_tick_size = 200;//changing this causes strange probelms 
+
+const int output_tick_size = 300;//This is/should be 1 over the gear ratio because that's the amount of time needed to get a perfect amount of data. 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
+
+String pad3(int value) {
+  if (value < 10)    return "  " + String(value);
+  if (value < 100)   return " "  + String(value);
+  return String(value); // already 3 digits
+}
+
 
 void updateLCD(float cadence, float kph, float distance_km) {
   //lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("CAD:");
-  lcd.print(cadence, 0);
+  lcd.print("Cad:");
+  lcd.print(pad3(cadence));
   lcd.print(" KPH:");
-  lcd.print(kph, 1);
+  lcd.print(pad3(kph));
   lcd.setCursor(0, 1);
-  lcd.print("Dist:");
-  lcd.print(distance_km, 3);
+  lcd.print("KMs:");
+  lcd.print(distance_km, 2);
   lcd.print("km");
 }
 
 
-void updateSerial(unsigned long changes,
+void updateSerial(unsigned long changes, unsigned int CSLT,
                   float readings_per_change,
                   float rps,
                   float rpm,
@@ -33,6 +40,7 @@ void updateSerial(unsigned long changes,
                   float averageKPH) {
   Serial.print("{");
   Serial.print("\"changes\":"); Serial.print(changes); Serial.print(",");
+   Serial.print("\"CSLT\":"); Serial.print(CSLT); Serial.print(",");
   Serial.print("\"readings_per_change\":"); Serial.print(readings_per_change); Serial.print(",");
   Serial.print("\"rps\":"); Serial.print(rps, 1); Serial.print(",");
   Serial.print("\"rpm\":"); Serial.print(rpm, 1); Serial.print(",");
@@ -43,7 +51,24 @@ void updateSerial(unsigned long changes,
   Serial.println("}");
 }
 
-void road_rash(int cadence){
+//BEGIN ALARM STUFF
+unsigned long lastAlarmTime = 0;  // Track when last alarm played
+
+void playAlarmSound(int pin) {
+  tone(pin, 1000, 250);  // Play a single 250 ms tone at 1kHz
+  lastAlarmTime = millis();  // Record the time the tone was played
+}
+
+void uncharted(int cadence) {
+  unsigned long currentTime = millis();
+  
+  if (cadence < 60 && (currentTime - lastAlarmTime >= 1000)) {
+    playAlarmSound(8);  // Only plays if 1 second has passed since last tone
+  }
+}
+//END ALARM STUFF
+
+/*void road_rash(int cadence){
 if (cadence > 65){ //then acellerate 
       static unsigned long lastPress = 0;
       Keyboard.press('s');
@@ -68,6 +93,15 @@ if (cadence < 20){
     }    
 
 }
+*/
+
+// Friendly startup sound
+void playHelloSound(int pin) {
+  tone(pin, 2000, 150);  // first beep
+  delay(200);
+  tone(pin, 2400, 150);  // second, higher beep
+  delay(200);
+}
 
 void setup() {
   Serial.begin(9600);
@@ -76,6 +110,7 @@ void setup() {
   lcd.backlight();
   lcd.setCursor(0, 0);
   lcd.print("Hello");
+  playHelloSound(8);
 }
 
 void loop() {
@@ -86,12 +121,16 @@ void loop() {
   static unsigned int changesSinceLastTick = 0;
   static unsigned long lastCheckTime = 0;
   static float rps = 0.0;
+  
 
   int currentValue = detectColor(analogRead(ldrPin));
   unsigned long currentTime = millis();
   total_readings++;
 
   if (currentValue != lastValue) {
+  //static unsigned long tick = 0;
+  //tick++;
+  //if (tick % 3 ==0){
     lastValue = currentValue;
     changes++;
     changesSinceLastTick++;
@@ -100,25 +139,32 @@ void loop() {
   if (currentTime - lastCheckTime >= output_tick_size) {
     //todo factor this into a separate, testable, set of functions 
 
-    rps = (float)changesSinceLastTick / segments_per_revolution;
-    float rpm = rps * 60.0 * (1000 / output_tick_size);
-    float cadence = rpm / gear_ratio; 
-    float kph = calculateKPH(cadence);
-    float distance_km = get_distance(changes); 
+    //float total_rotations = (float)changesSinceLastTick / segments_per_revolution;//that's not rotations per second is it?  That's total rotations
+    //rps = (float) total_rotations*1000/output_tick_size;
+    //float rpm = (float) rps * 60.0;
+    //float cadence = rpm / gear_ratio; 
+    //float kph = calculateKPH(cadence);
+    //float distance_km = get_distance(changes); 
 
-    float totalTimeHours = (currentTime - startTime) / 3600000.0;
-    float averageKPH = (totalTimeHours > 0) ? distance_km / totalTimeHours : 0;
+    //float totalTimeHours = (currentTime - startTime) / 3600000.0;
+    //float averageKPH = (totalTimeHours > 0) ? distance_km / totalTimeHours : 0;
 
     float readings_per_change = (changes > 0) ? (float)total_readings / changes : 0;
-    road_rash(cadence);
+    uncharted(changesSinceLastTick);
 
-
+    int cadence=changesSinceLastTick;
+    int kph=calculateKPH(cadence);
+    float distance_km=get_distance(changes);
     lastCheckTime = currentTime;
-    changesSinceLastTick = 0;
-
-    updateSerial(changes, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
+    //updateSerial(changes, changesSinceLastTick, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
+    updateSerial(changes, changesSinceLastTick, readings_per_change, 0, 0, 0, 0, distance_km, 0);
+    
+    
     //pcs();
+    
+    //updateLCD(cadence, kph, distance_km);
     updateLCD(cadence, kph, distance_km);
+    changesSinceLastTick = 0;
   }
 
   delay(1);
