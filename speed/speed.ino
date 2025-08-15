@@ -6,7 +6,7 @@ const int ldrPin = A0;//The IR sensor is connected here.
 int lastValue = 0;
 const float gear_ratio=3.34;//I worked this out by doing 100 crank revolutions and checking the number of main revolutions recorded
 
-const int output_tick_size = 200;//changing this causes strange probelms 
+const int output_tick_size = 400;//changing this causes strange probelms 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 if needed
 
 void updateLCD(float cadence, float kph, float distance_km) {
@@ -23,7 +23,7 @@ void updateLCD(float cadence, float kph, float distance_km) {
 }
 
 
-void updateSerial(unsigned long changes,
+void updateSerial(unsigned long changes, unsigned int CSLT,
                   float readings_per_change,
                   float rps,
                   float rpm,
@@ -33,6 +33,7 @@ void updateSerial(unsigned long changes,
                   float averageKPH) {
   Serial.print("{");
   Serial.print("\"changes\":"); Serial.print(changes); Serial.print(",");
+   Serial.print("\"CSLT\":"); Serial.print(CSLT); Serial.print(",");
   Serial.print("\"readings_per_change\":"); Serial.print(readings_per_change); Serial.print(",");
   Serial.print("\"rps\":"); Serial.print(rps, 1); Serial.print(",");
   Serial.print("\"rpm\":"); Serial.print(rpm, 1); Serial.print(",");
@@ -58,7 +59,7 @@ void uncharted(int cadence) {
   }
 }
 
-void road_rash(int cadence){
+/*void road_rash(int cadence){
 if (cadence > 65){ //then acellerate 
       static unsigned long lastPress = 0;
       Keyboard.press('s');
@@ -83,6 +84,7 @@ if (cadence < 20){
     }    
 
 }
+*/
 
 // Friendly startup sound
 void playHelloSound(int pin) {
@@ -110,12 +112,16 @@ void loop() {
   static unsigned int changesSinceLastTick = 0;
   static unsigned long lastCheckTime = 0;
   static float rps = 0.0;
+  
 
   int currentValue = detectColor(analogRead(ldrPin));
   unsigned long currentTime = millis();
   total_readings++;
 
   if (currentValue != lastValue) {
+  //static unsigned long tick = 0;
+  //tick++;
+  //if (tick % 3 ==0){
     lastValue = currentValue;
     changes++;
     changesSinceLastTick++;
@@ -124,8 +130,9 @@ void loop() {
   if (currentTime - lastCheckTime >= output_tick_size) {
     //todo factor this into a separate, testable, set of functions 
 
-    rps = (float)changesSinceLastTick / segments_per_revolution;
-    float rpm = rps * 60.0 * (1000 / output_tick_size);
+    float total_rotations = (float)changesSinceLastTick / segments_per_revolution;//that's not rotations per second is it?  That's total rotations
+    rps = (float) total_rotations*1000/output_tick_size;
+    float rpm = (float) rps * 60.0;
     float cadence = rpm / gear_ratio; 
     float kph = calculateKPH(cadence);
     float distance_km = get_distance(changes); 
@@ -138,9 +145,8 @@ void loop() {
 
 
     lastCheckTime = currentTime;
+    updateSerial(changes, changesSinceLastTick, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
     changesSinceLastTick = 0;
-
-    updateSerial(changes, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
     //pcs();
     updateLCD(cadence, kph, distance_km);
   }
