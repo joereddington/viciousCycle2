@@ -19,13 +19,13 @@ String pad3(int value) {
 void updateLCD(float cadence, float kph, float distance_km) {
   //lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("CAD:");
+  lcd.print("Cad:");
   lcd.print(pad3(cadence));
   lcd.print(" KPH:");
   lcd.print(pad3(kph));
   lcd.setCursor(0, 1);
-  lcd.print("Dist:");
-  lcd.print(distance_km, 3);
+  lcd.print("KMs:");
+  lcd.print(distance_km, 2);
   lcd.print("km");
 }
 
@@ -154,15 +154,16 @@ void loop() {
 
     int cadence=changesSinceLastTick;
     int kph=calculateKPH(cadence);
+    float distance_km=get_distance(changes);
     lastCheckTime = currentTime;
     //updateSerial(changes, changesSinceLastTick, readings_per_change, rps, rpm, cadence, kph, distance_km, averageKPH);
-    updateSerial(changes, changesSinceLastTick, readings_per_change, 0, 0, 0, 0, 0, 0);
+    updateSerial(changes, changesSinceLastTick, readings_per_change, 0, 0, 0, 0, distance_km, 0);
     
     
     //pcs();
     
     //updateLCD(cadence, kph, distance_km);
-    updateLCD(cadence, kph, 0);
+    updateLCD(cadence, kph, distance_km);
     changesSinceLastTick = 0;
   }
 
