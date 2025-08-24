@@ -17,17 +17,19 @@ const int segments_per_revolution = 60;
 const float cadence_to_kph_scalar=wheel_circumference*gear_ratio*60/1000; //The 60 is to go from per minute to per hour the 1000 is to go from m to km
 const int changes_per_ten_meters= (int) 10/(wheel_circumference/segments_per_revolution); //Used to work out km. Back of envelope is about 300 
 
+//TODO - fairly certain we can delete the below three lines 
 extern int histogram[10];
 extern long total;
 extern int count;
-
-
 void printColorStats(const int histogram[], long total, int count);
+void pcs();
+
+//end histogram 
+
+
 int detectColor(int value);
 float calculateKPH(int cadence);
-void pcs();
 float get_distance(long changes); 
-
 
 #endif
 

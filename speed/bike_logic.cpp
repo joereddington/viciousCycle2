@@ -13,4 +13,6 @@ float get_distance(long changes){
   return  (float) changes/(changes_per_ten_meters*100);
 }
 
+//TODO Move more functions here. 
+//TODO - work out what the error messages are when you push to the Leonardo 
 
