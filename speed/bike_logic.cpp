@@ -5,11 +5,11 @@ int detectColor(int value) {
   return (value > red_above_this) ? 0 : 1;
 }
 
-float calculateKPH(int cadence) {
+int calculateKPH(int cadence) {
   if (cadence < 0){
     return 0;
   }
-  return cadence * cadence_to_kph_scalar;
+  return (int) cadence * cadence_to_kph_scalar;
 }
 
 float get_distance(long changes){
@@ -28,3 +28,5 @@ String padn(int value, int n) {
   }
   return s;
 }
+
+

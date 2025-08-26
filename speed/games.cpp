@@ -42,23 +42,22 @@ void playHelloSound(int pin) {//TODO (EASY) make more complex and interesting
   delay(200);
   tone(pin, 2400, 150);  // second, higher beep
   delay(200);
-  playBabyShark(pin);
+  //playBabyShark(pin);
   //an octave is twice the fequency when it starts as ends, and has eight notes, so it goes up in the fourth root of 2. 
 }
 
-void uncharted(int cadence) {
+void uncharted(int cadence) {//TODO rename 
   unsigned long currentTime = 0;//millis();
-  if (cadence < 60 && (currentTime - lastAlarmTime >= 1000)) {
+  if (cadence < 60 && (currentTime - lastAlarmTime >= 1000)) {//TODO make the 1000 and 60 adjustable 
     playAlarmSound(8);  // Only plays if 1 second has passed since last tone
   }
 }
 
-#ifdef LEONARDO
-void road_rash(int cadence){
+void road_rash(int cadence){//TODO - lots to do here - rewrite for clarity 
 if (cadence > 65){ //then acellerate 
       static unsigned long lastPress = 0;
       Keyboard.press('s');
-      Serial.print("gas+ ");
+      Serial.println("gas+ ");
       if (cadence > 65 && millis() - lastPress > 2000) {
           Keyboard.release('s');
           //delay(50);  // tap duration
@@ -67,16 +66,15 @@ if (cadence > 65){ //then acellerate
       
       }
     } else{
-      Serial.print("gas-");
+      Serial.println("gas-");
       Keyboard.release('s');
     }
 if (cadence < 20){
       Keyboard.press('a');  
-      Serial.print("break+");
+      Serial.println("break+");
     } else{
       Keyboard.release('a');
-      Serial.print("break-");
+      Serial.println("break-");
     }    
 
 }
-#endif

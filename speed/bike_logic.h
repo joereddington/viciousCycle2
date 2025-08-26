@@ -18,8 +18,9 @@ const float cadence_to_kph_scalar=wheel_circumference*gear_ratio*60/1000; //The 
 const int changes_per_ten_meters= (int) 10/(wheel_circumference/segments_per_revolution); //Used to work out km. Back of envelope is about 300 
 
 int detectColor(int value);
-float calculateKPH(int cadence);
+int calculateKPH(int cadence);
 float get_distance(long changes); 
+//void run_startup_tests();
 String padn(int value, int n);
 #endif
 
