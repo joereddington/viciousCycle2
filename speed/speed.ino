@@ -79,9 +79,11 @@ void loop() {
     segmentPassed();
   }
   readings_since_change++;
-  if (readings_since_change>2000){
+  if (readings_since_change>200){
     lcd.clear();
   }
+  delay(1);//TODO see what changing this does to the readings_per_change
+
 }
 
 /* This function triggers every time the sensor notices a new event. It needs no arguments*/ 
@@ -97,11 +99,10 @@ void segmentPassed(){
 
   if (currentTime - lastCheckTime >= output_tick_size) {
     updateDisplay(changesSinceLastTick,changes);
-    road_rash(changesSinceLastTick);
+    uncharted(changesSinceLastTick);
     changesSinceLastTick = 0;
     lastCheckTime = currentTime;
   }
-  delay(1);//TODO see what changing this does to the readings_per_change
 }
 
 void updateDisplay(int cadence, long changes){
